@@ -20,7 +20,7 @@ In this mode you can query data in some other tool and provide the JSON output:
 node report.js --file INPUT_FILE.json
 ```
 
-This is the GraphQL query to generate the iput file:
+This is the GraphQL query to generate the input file:
 
 ```graphql
 {

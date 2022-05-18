@@ -1,6 +1,7 @@
 # Requirements
 
 - Node.js 16+
+- ASSUMES A POSIX COMPATIBLE FILE SYSTEM. Native windows paths are curretly not supported.
 
 # Installation
 

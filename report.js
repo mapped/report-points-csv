@@ -16,6 +16,7 @@ const COLUMNS = [
   "equipmentModel",
   "equipmentFirmware",
   "equipmentLocation",
+  "equipmentMappingKey",
   "pointName",
   "pointDescription",
   "pointType",
@@ -133,17 +134,24 @@ const POINTS_QUERY = gql`
     thing.points.forEach((point) => {
       // Initialize the row with this data
       const row = {};
-      const mappingKey = parseThingMappingKey(thing.mappingKey);
-      row.network = mappingKey.network;
-      row.instanceId = mappingKey.instanceId;
+      if (thing.mappingKey.includes("@MAPPED_UG/")) {
+        const mappingKey = parseThingMappingKey(thing.mappingKey);
+        row.network = mappingKey.network;
+        row.instanceId = mappingKey.instanceId;
+      }
       row.mappedThingId = thing.id;
       row.equipmentName = thing.name;
       row.equipmentDescription = thing.description;
       row.equipmentType = thing.exactType;
-      row.equipmentManufacturer = thing.model.manufacturer.name;
-      row.equipmentModel = thing.model.name;
+      row.equipmentManufacturer = thing.model?.manufacturer?.name;
+      row.equipmentModel = thing?.model?.name;
       row.equipmentFirmware = thing.firmwareVersion;
       row.equipmentLocation = thing.hasLocation ? thing.hasLocation.name : "";
+      row.equipmentMappingKey = thing.mappingKey;
+
+      if (!point.mappingKey.includes("MAPPED_UG")) {
+        return;
+      }
 
       // Split the object ID that looks something like 5:65
       const objectIdParts = parsePointMappingKey(

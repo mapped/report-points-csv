@@ -77,3 +77,7 @@ node report.js --buildingId $BUILDING_ID --orgId $ORG_ID
 ```
 
 It will generate an output CSV file in the current working directory.
+
+### Limitations
+
+- isPartOf is limited to a single parent

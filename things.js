@@ -4,12 +4,10 @@ const { GraphQLClient, gql } = require("graphql-request");
 
 // The CSV columns in order
 const COLUMNS = [
-  "mappedPointId",
+  "mappedThingId",
   "ip",
   "network",
   "instanceId",
-  "objectId",
-  "mappedThingId",
   "equipmentName",
   "equipmentDescription",
   "equipmentType",
@@ -19,11 +17,7 @@ const COLUMNS = [
   "equipmentLocation",
   "equipmentIsPartOf",
   "equipmentMappingKey",
-  "pointName",
-  "pointDescription",
-  "pointType",
-  "pointUnit",
-  "pointStateTexts",
+  "pointCount",
 ];
 
 // BACnet object types map
@@ -82,14 +76,6 @@ const POINTS_QUERY = gql`
         }
         points {
           id
-          name
-          description
-          exactType
-          stateTexts
-          mappingKey
-          unit {
-            id
-          }
         }
       }
     }
@@ -125,69 +111,36 @@ const POINTS_QUERY = gql`
 
   // Resolve and open output file
   fs.mkdirSync(__dirname + "/data", { recursive: true });
-  const outClassifiedFile =
-    __dirname + `/data/report.${new Date().getTime()}.csv`;
-  const outUnclassifiedFile =
-    __dirname + `/data/report.${new Date().getTime()}.pending.csv`;
-  var outClassified = fs.createWriteStream(outClassifiedFile);
-  var outUnclassified = fs.createWriteStream(outUnclassifiedFile);
+  const outFile = __dirname + `/data/thing-report.${new Date().getTime()}.csv`;
+  var out = fs.createWriteStream(outFile);
 
   // Write column header
-  outClassified.write(COLUMNS.join(",") + "\n");
-  outUnclassified.write(COLUMNS.join(",") + "\n");
+  out.write(COLUMNS.join(",") + "\n");
 
   d.buildings[0].things.forEach((thing) => {
-    thing.points.forEach((point) => {
-      // Initialize the row with this data
-      const row = {};
-      if (thing.mappingKey.includes("@MAPPED_UG/")) {
-        const mappingKey = parseThingMappingKey(thing.mappingKey);
-        row.network = mappingKey.network;
-        row.instanceId = mappingKey.instanceId;
-        row.ip = mappingKey.ip;
-      }
-      row.mappedThingId = thing.id;
-      row.equipmentName = thing.name;
-      row.equipmentDescription = thing.description;
-      row.equipmentType = thing.exactType;
-      row.equipmentManufacturer = thing.model?.manufacturer?.name;
-      row.equipmentModel = thing?.model?.name;
-      row.equipmentFirmware = thing.firmwareVersion;
-      row.equipmentLocation = thing.hasLocation ? thing.hasLocation.name : "";
-      row.equipmentIsPartOf =
-        thing.isPartOf.length > 0
-          ? `${thing.isPartOf[0].name} (${thing.isPartOf[0].id})`
-          : "";
-      row.equipmentMappingKey = thing.mappingKey;
-
-      if (!point.mappingKey.includes("MAPPED_UG")) {
-        return;
-      }
-
-      // Split the object ID that looks something like 5:65
-      const objectIdParts = parsePointMappingKey(
-        point.mappingKey
-      ).objectId.split(":");
-
-      row.mappedPointId = point.id;
-      row.objectId = `${objectTypeMap[parseInt(objectIdParts[0])] || "other"}/${
-        objectIdParts[1]
-      }`;
-      row.pointName = point.name;
-      row.pointDescription = point.description;
-      row.pointType = point.exactType;
-      row.pointStateTexts =
-        point.stateTexts != null ? point.stateTexts.join(",") : "";
-
-      if (point.unit && point.unit.id != "NO_UNIT") {
-        row.pointUnit = point.unit.id;
-      }
-      if (row.pointType === "Point") {
-        outUnclassified.write(rowToCsv(row) + "\n");
-      } else {
-        outClassified.write(rowToCsv(row) + "\n");
-      }
-    });
+    // Initialize the row with this data
+    const row = {};
+    if (thing.mappingKey.includes("@MAPPED_UG/")) {
+      const mappingKey = parseThingMappingKey(thing.mappingKey);
+      row.network = mappingKey.network;
+      row.instanceId = mappingKey.instanceId;
+      row.ip = mappingKey.ip;
+    }
+    row.mappedThingId = thing.id;
+    row.equipmentName = thing.name;
+    row.equipmentDescription = thing.description;
+    row.equipmentType = thing.exactType;
+    row.equipmentManufacturer = thing.model?.manufacturer?.name;
+    row.equipmentModel = thing?.model?.name;
+    row.equipmentFirmware = thing.firmwareVersion;
+    row.equipmentLocation = thing.hasLocation ? thing.hasLocation.name : "";
+    row.equipmentIsPartOf =
+      thing.isPartOf.length > 0
+        ? `${thing.isPartOf[0].name} (${thing.isPartOf[0].id})`
+        : "";
+    row.equipmentMappingKey = thing.mappingKey;
+    row.pointCount = thing.points.length;
+    out.write(rowToCsv(row) + "\n");
   });
 
   // Example: msrc://CONYEjT9KGC7AAUkR4GisCkYD@MAPPED_UG/GWVK4aP7uRD5NRianS5PjHnt/10.135.40.6:48808/1220417
@@ -201,15 +154,6 @@ const POINTS_QUERY = gql`
       network,
       instanceId,
       ip,
-    };
-  }
-
-  // Example: msrc://CONYEjT9KGC7AAUkR4GisCkYD@MAPPED_UG/GWVK4aP7uRD5NRianS5PjHnt/10.135.40.6:48808/1220417?object=3:11
-  function parsePointMappingKey(key) {
-    const parts = key.split("/");
-    const objectId = parts[5].split("=")[1]; // 1220417?object=3:11
-    return {
-      objectId,
     };
   }
 

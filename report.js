@@ -19,11 +19,18 @@ const COLUMNS = [
   "equipmentLocation",
   "equipmentIsPartOf",
   "equipmentMappingKey",
+  // "equipmentDateCreated",
+  // "equipmentDateUpdated",
   "pointName",
   "pointDescription",
   "pointType",
   "pointUnit",
   "pointStateTexts",
+  "pointConfidence",
+  "pointConfidenceLevel",
+  // "pointDateCreated",
+  // "pointDateUpdated",
+  // "pointDaysToClassify",
 ];
 
 // BACnet object types map
@@ -65,6 +72,8 @@ const POINTS_QUERY = gql`
         description
         firmwareVersion
         mappingKey
+        dateCreated
+        dateUpdated
         hasLocation {
           name
         }
@@ -87,6 +96,8 @@ const POINTS_QUERY = gql`
           exactType
           stateTexts
           mappingKey
+          dateCreated
+          dateUpdated
           unit {
             id
           }
@@ -103,7 +114,9 @@ const POINTS_QUERY = gql`
     .option("--orgId <orgId>")
     .option("--buildingId <buildingId>")
     .option("--pat <pat>")
-    .option("--jwt  <jwt>");
+    .option("--jwt  <jwt>")
+    .option("--confidenceFile  <confidence>");
+
   program.parse();
   const options = program.opts();
 
@@ -121,6 +134,29 @@ const POINTS_QUERY = gql`
   } else {
     console.error("Must specify either --file or --pat or --jwt");
     process.exit(1);
+  }
+
+  let pointConfidence = {};
+  if (options.confidenceFile) {
+    const rows = fs
+      .readFileSync(options.confidenceFile, "utf8")
+      .toString()
+      .split(/(?:\r\n|\r|\n)/g);
+    for (let row of rows) {
+      const [
+        id,
+        _name,
+        _description,
+        _type,
+        _tag_confidence,
+        type_confidence,
+        confidence_level,
+      ] = row.split("\t");
+      pointConfidence[id] = {
+        type_confidence,
+        confidence_level,
+      };
+    }
   }
 
   // Resolve and open output file
@@ -153,6 +189,8 @@ const POINTS_QUERY = gql`
       row.equipmentManufacturer = thing.model?.manufacturer?.name;
       row.equipmentModel = thing?.model?.name;
       row.equipmentFirmware = thing.firmwareVersion;
+      row.equipmentDateCreated = thing.dateCreated;
+      row.equipmentDateUpdated = thing.dateUpdated;
       row.equipmentLocation = thing.hasLocation ? thing.hasLocation.name : "";
       row.equipmentIsPartOf =
         thing.isPartOf.length > 0
@@ -176,12 +214,26 @@ const POINTS_QUERY = gql`
       row.pointName = point.name;
       row.pointDescription = point.description;
       row.pointType = point.exactType;
+      row.pointDateCreated = point.dateCreated;
+      row.pointDateUpdated = point.dateUpdated;
+      row.pointDaysToClassify =
+        (new Date(row.pointDateUpdated).getTime() -
+          new Date(row.equipmentDateUpdated).getTime()) /
+        1000 /
+        60 /
+        60 /
+        24;
       row.pointStateTexts =
         point.stateTexts != null ? point.stateTexts.join(",") : "";
 
       if (point.unit && point.unit.id != "NO_UNIT") {
         row.pointUnit = point.unit.id;
       }
+
+      row.pointConfidence = pointConfidence[point.id]?.type_confidence || "";
+      row.pointConfidenceLevel =
+        pointConfidence[point.id]?.confidence_level || "";
+
       if (row.pointType === "Point") {
         outUnclassified.write(rowToCsv(row) + "\n");
       } else {
@@ -214,7 +266,17 @@ const POINTS_QUERY = gql`
   }
 
   function rowToCsv(row) {
-    return COLUMNS.map((key) => `"${row[key] || ""}"`).join(",");
+    return COLUMNS.map((key) => {
+      let value = row[key] || "";
+      // Replace double quotes with double double quotes
+      if (
+        Object.prototype.toString.call(value) === "[object String]" &&
+        value.includes(`"`)
+      ) {
+        value = `"${value.replace(/"/g, '""')}"`;
+      }
+      return `"${row[key] || ""}"`;
+    }).join(",");
   }
 
   function getFileData(options) {

@@ -223,15 +223,17 @@ const POINTS_QUERY = gql`
         pointConfidence[point.id]?.confidence_level || "";
 
       if (point.mappingKey.includes("MAPPED_UG")) {
-        // Split the object ID that looks something like 5:65
-        const objectIdParts = parsePointMappingKey(
-          point.mappingKey
-        ).objectId.split(":");
+        const parsedMappingKey = parsePointMappingKey(point.mappingKey);
 
-        // Set bacnet object type and instance
-        row.objectId = `${
-          objectTypeMap[parseInt(objectIdParts[0])] || "other"
-        }/${objectIdParts[1]}`;
+        if (parsePointMappingKey) {
+          // Split the object ID that looks something like 5:65
+          const objectIdParts = parsedMappingKey.objectId.split(":");
+
+          // Set bacnet object type and instance
+          row.objectId = `${
+            objectTypeMap[parseInt(objectIdParts[0])] || "other"
+          }/${objectIdParts[1]}`;
+        }
       }
 
       if (row.pointType === "Point") {
@@ -258,11 +260,16 @@ const POINTS_QUERY = gql`
 
   // Example: msrc://CONYEjT9KGC7AAUkR4GisCkYD@MAPPED_UG/GWVK4aP7uRD5NRianS5PjHnt/10.135.40.6:48808/1220417?object=3:11
   function parsePointMappingKey(key) {
-    const parts = key.split("/");
-    const objectId = parts[5].split("=")[1]; // 1220417?object=3:11
-    return {
-      objectId,
-    };
+    try {
+      const parts = key.split("/");
+      const objectId = parts[5].split("=")[1]; // 1220417?object=3:11
+      return {
+        objectId,
+      };
+    } catch (e) {
+      // NOOP
+      return null;
+    }
   }
 
   function rowToCsv(row) {

@@ -198,19 +198,7 @@ const POINTS_QUERY = gql`
           : "";
       row.equipmentMappingKey = thing.mappingKey;
 
-      if (!point.mappingKey.includes("MAPPED_UG")) {
-        return;
-      }
-
-      // Split the object ID that looks something like 5:65
-      const objectIdParts = parsePointMappingKey(
-        point.mappingKey
-      ).objectId.split(":");
-
       row.mappedPointId = point.id;
-      row.objectId = `${objectTypeMap[parseInt(objectIdParts[0])] || "other"}/${
-        objectIdParts[1]
-      }`;
       row.pointName = point.name;
       row.pointDescription = point.description;
       row.pointType = point.exactType;
@@ -233,6 +221,18 @@ const POINTS_QUERY = gql`
       row.pointConfidence = pointConfidence[point.id]?.type_confidence || "";
       row.pointConfidenceLevel =
         pointConfidence[point.id]?.confidence_level || "";
+
+      if (point.mappingKey.includes("MAPPED_UG")) {
+        // Split the object ID that looks something like 5:65
+        const objectIdParts = parsePointMappingKey(
+          point.mappingKey
+        ).objectId.split(":");
+
+        // Set bacnet object type and instance
+        row.objectId = `${
+          objectTypeMap[parseInt(objectIdParts[0])] || "other"
+        }/${objectIdParts[1]}`;
+      }
 
       if (row.pointType === "Point") {
         outUnclassified.write(rowToCsv(row) + "\n");

@@ -225,7 +225,7 @@ const POINTS_QUERY = gql`
       if (point.mappingKey.includes("MAPPED_UG")) {
         const parsedMappingKey = parsePointMappingKey(point.mappingKey);
 
-        if (parsePointMappingKey) {
+        if (parsedMappingKey) {
           // Split the object ID that looks something like 5:65
           const objectIdParts = parsedMappingKey.objectId.split(":");
 

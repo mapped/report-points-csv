@@ -108,12 +108,57 @@ const POINTS_QUERY = gql`
   }
 `;
 
+const THING_POINTS_QUERY = gql`
+  query getThingPoints($thingIds: [String]!) {
+    things(filter: { id: { in: $thingIds } }) {
+      id
+      exactType
+      name
+      description
+      firmwareVersion
+      mappingKey
+      dateCreated
+      dateUpdated
+      hasLocation {
+        name
+      }
+      isPartOf {
+        id
+        name
+      }
+      model {
+        name
+        description
+        manufacturer {
+          name
+          description
+        }
+      }
+      points {
+        id
+        name
+        description
+        exactType
+        stateTexts
+        mappingKey
+        dateCreated
+        dateUpdated
+        unit {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
 (async () => {
   // Parse command line arguments
   program
     .option("--file <file>")
     .option("--orgId <orgId>")
     .option("--buildingId <buildingId>")
+    .option("--thingIds <thingIds>")
     .option("--pat <pat>")
     .option("--jwt  <jwt>")
     .option("--confidenceFile  <confidence>");
@@ -173,7 +218,7 @@ const POINTS_QUERY = gql`
   outClassified.write(COLUMNS.join(",") + "\n");
   outUnclassified.write(COLUMNS.join(",") + "\n");
 
-  d.buildings[0].things.forEach((thing) => {
+  d.things.forEach((thing) => {
     thing.points.forEach((point) => {
       // Initialize the row with this data
       const row = {};
@@ -308,8 +353,8 @@ const POINTS_QUERY = gql`
 
     // Building ID is required when making graphql query
     const buildingId = options.buildingId;
-    if (!buildingId) {
-      console.error("Must specify --buildingId");
+    if (!buildingId && !options.thingIds) {
+      console.error("Must specify --buildingId or --thingIds");
       process.exit(1);
     }
 
@@ -322,9 +367,16 @@ const POINTS_QUERY = gql`
         "X-Mapped-Org-Id": options.orgId,
       },
     });
-    return await client.request(POINTS_QUERY, {
-      buildingId,
-    });
+
+    if (options.thingIds) {
+      return await client.request(THING_POINTS_QUERY, {
+        thingIds: options.thingIds.split(","),
+      });
+    } else {
+      return await client.request(POINTS_QUERY, {
+        buildingId,
+      }).buildings[0];
+    }
   }
 
   function resolveAuthHeader(options) {

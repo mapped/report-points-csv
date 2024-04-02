@@ -373,9 +373,9 @@ const THING_POINTS_QUERY = gql`
         thingIds: options.thingIds.split(","),
       });
     } else {
-      return await client.request(POINTS_QUERY, {
+      return (await client.request(POINTS_QUERY, {
         buildingId,
-      }).buildings[0];
+      })).buildings[0];
     }
   }
 

@@ -100,7 +100,6 @@ const POINTS_QUERY = gql`
           dateUpdated
           unit {
             id
-            name
           }
         }
       }
@@ -145,7 +144,6 @@ const THING_POINTS_QUERY = gql`
         dateUpdated
         unit {
           id
-          name
         }
       }
     }

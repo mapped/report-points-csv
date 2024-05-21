@@ -2,10 +2,13 @@
   "name": "point-report",
   "version": "1.0.0",
   "description": "The input to this program is the result of running this GraphQL query:",
-  "main": "report.js",
+  "main": "report.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mapped/point-report.git"
+  },
+  "scripts": {
+    "start": "NODE_OPTIONS='--max-old-space-size=8120' ts-node report.ts"
   },
   "author": "",
   "license": "MIT",
@@ -14,8 +17,14 @@
   },
   "homepage": "https://github.com/mapped/point-report#readme",
   "dependencies": {
+    "@mapped/rivet-proto": "^1.22.64",
+    "@mapped/schema-graph-react-apollo": "^1.67.4",
+    "@types/node": "^20.12.7",
     "commander": "^9.2.0",
+    "csv-parser": "3.0.0",
     "graphql": "^16.4.0",
-    "graphql-request": "^4.2.0"
+    "graphql-request": "^4.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
 }

@@ -75,7 +75,7 @@ const COLUMNS: string[] = [
   //'pointValueMap',
   'pointConfidence',
   'pointConfidenceLevel',
-  //'pointUnused',
+  'pointUnused',
   // "pointDateCreated",
   // "pointDateUpdated",
   // "pointDaysToClassify",
@@ -226,6 +226,7 @@ type Report = {
     .option('--jwt  <jwt>')
     .option('--confidenceFile  <confidence>')
     .option('--unitCorrectionsFile  <confidence>')
+    .option('--splitUnused')
 
   program.parse()
   const options = program.opts()
@@ -252,6 +253,8 @@ type Report = {
     process.exit(1)
   }
 
+  const splitUnused: boolean = options.splitUnused
+
   // Resolve and open output file
   fs.mkdirSync(__dirname + '/data', { recursive: true })
   const outClassifiedFile = __dirname + `/data/report.${new Date().getTime()}.csv`
@@ -261,7 +264,10 @@ type Report = {
 
   // Write column header
   outClassified.write(COLUMNS.join(',') + '\n')
-  outUnclassified.write(COLUMNS.join(',') + '\n')
+
+  if (splitUnused) {
+    outUnclassified.write(COLUMNS.join(',') + '\n')
+  }
 
   const report: Report = {
     things: {
@@ -403,7 +409,7 @@ type Report = {
           }
         }
 
-        if (unused || row.pointType === 'Point') {
+        if (splitUnused && (unused || row.pointType === 'Point')) {
           outUnclassified.write(rowToCsv(row) + '\n')
         } else {
           outClassified.write(rowToCsv(row) + '\n')

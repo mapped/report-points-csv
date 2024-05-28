@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/mapped/point-report#readme",
   "dependencies": {
-    "@mapped/rivet-proto": "^1.22.64",
+    "@mapped/rivet-proto": "^1.22.113",
     "@mapped/schema-graph-react-apollo": "^1.67.4",
     "@types/node": "^20.12.7",
     "commander": "^9.2.0",

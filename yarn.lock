@@ -58,10 +58,10 @@
   resolved "https://registry.yarnpkg.com/@js-sdsl/ordered-map/-/ordered-map-4.4.2.tgz#9299f82874bab9e4c7f9c48d865becbfe8d6907c"
   integrity sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==
 
-"@mapped/proto-node-nice@^1.43.8":
-  version "1.43.41"
-  resolved "https://npm.pkg.github.com/download/@mapped/proto-node-nice/1.43.41/5bde526d9e8fccc5edeaf4f204b5fb36d553b1f8#5bde526d9e8fccc5edeaf4f204b5fb36d553b1f8"
-  integrity sha512-XSUPTN9xj9WehNrx//A0SuU9goCSl/zeo5ue5GJwcvlHuSQLF2Ra+PrPu3XBsIcYZX4DtxtdcMh3KQQexfP3HA==
+"@mapped/proto-node-nice@^1.45.6":
+  version "1.45.7"
+  resolved "https://npm.pkg.github.com/download/@mapped/proto-node-nice/1.45.7/b1e077c6d49b130a2a20afac9b093cb2372320be#b1e077c6d49b130a2a20afac9b093cb2372320be"
+  integrity sha512-uGqi5e/+Hx85jLMBY/kMIFrUK5l4Xml5AYnFES9AP6DYYmDHatPxqnLYf767vpG/tOPfqaoLIgR1JJ1G1tVeVg==
   dependencies:
     "@grpc/grpc-js" "^1.9.2"
     long "4.0.0"
@@ -71,12 +71,12 @@
     ts-proto "^1.146.0"
     ts-proto-descriptors "^1.9.0"
 
-"@mapped/rivet-proto@^1.22.64":
-  version "1.22.91"
-  resolved "https://npm.pkg.github.com/download/@mapped/rivet-proto/1.22.91/5d2ff46ea512f191b64405debdcbba53b303d3d3#5d2ff46ea512f191b64405debdcbba53b303d3d3"
-  integrity sha512-iCDiMe+aQyVvebm/9YNTTcqkD80e/n00wYCkjo4Bi6Vv63+aZzTtUkr1UEio39nJ3kDmVLADtmqTDPdMfZCxeQ==
+"@mapped/rivet-proto@^1.22.113":
+  version "1.22.113"
+  resolved "https://npm.pkg.github.com/download/@mapped/rivet-proto/1.22.113/0c33eaf4b280955fb1f60549467352b3cf586366#0c33eaf4b280955fb1f60549467352b3cf586366"
+  integrity sha512-UCBG56fMT9PYeXyz46EJS9A1rbATmLz6irccLarTVK6YAFpINqY6OwUSbollG1ABIqANszL9cOXEDgvPIYOAdQ==
   dependencies:
-    "@mapped/proto-node-nice" "^1.43.8"
+    "@mapped/proto-node-nice" "^1.45.6"
     "@types/json-stable-stringify" "1.0.34"
     crypto-browserify "3.12.0"
     http-browserify "1.7.0"

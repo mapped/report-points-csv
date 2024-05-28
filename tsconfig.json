@@ -1,0 +1,24 @@
+{
+  "ts-node": {
+    "ignore": ["(?:^|/)node_modules/"]
+  },
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "strict": true,
+    "module": "commonjs",
+    "target": "es2018",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "downlevelIteration": true,
+    "typeRoots": ["node_modules/@types"],
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"],
+
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "outDir": "out"
+  }
+}
